@@ -1,0 +1,6 @@
+.bundle
+.yardoc
+yardoc
+coverage
+*.gem
+support/vim/doc/tags
