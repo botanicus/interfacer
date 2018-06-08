@@ -1,0 +1,15 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    commonjs_modules (0.0.1)
+    oj (3.6.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  commonjs_modules
+  oj
+
+BUNDLED WITH
+   1.16.1

@@ -74,22 +74,123 @@ You can say that you could just stub `Time.now` and you're right, but I'm not a 
 But whatever, let's have an another example.
 
 ```ruby
-settings = import('settings')
+JsonEncoder = import('registry').json_encoder
 
 class Post
-  attribute :json_encoder, '.generate' { settings.json_encoder }
+  attribute :json_encoder, '.generate' { JsonEncoder }
 end
 ```
 
 Now when you decide to switch to say `oj`, all you have to do is this:
 
 ```ruby
-# settings.rb
+# registry.rb
 
-require 'oj'
-
-export json_encoder: Oj
+# Lazy loading, the result is cached.
+export(:json_encoder) do
+  import('adapters/oj')
+end
 ```
+
+So instead of having bunch of `require 'json'` calls, `JSON` module referenced in many places and `#to_json` calls used on monkey-patched core classes (ay!), we have one `require` statement, one statement of registering the encoder and then every class specifying what does it need from the encoder.
+
+The last bit is very powerful. Instead of declaring an interface (_from the top down_) and implementing all the methods interface requires, we basically define something like interface for our project (_from the bottom up_).
+
+OK, JSON encoders all looks the same. But what about say HTTP requests?
+
+```ruby
+# http_adapter.rb
+
+require 'net/http'
+
+def exports.get(url)
+  # TODO: Implement using net/http.
+end
+```
+
+```ruby
+# registry.rb
+
+export(:http_adapter) do
+  import('net_http_adapter')
+end
+
+export log_path: '/var/logs/post.log'
+
+export(:logger) do
+  require 'logger'
+  Logger.new(exports.log_path)
+end
+```
+
+```ruby
+http_adapter, logger = import('registry').grap(:http_adapter, :logger)
+
+class Post
+  attribute :http_adapter, '.get' { http_adapter }
+  attribute :logger, :debug, :info, :error { logger }
+end
+```
+
+HTTP libraries have bunch of methods. But in this case, all we care about is to have a `#get` method accepting URL and returning a stream.
+
+### But ... what about need-based coding (TODO: find how it's really called).
+
+Specifying the dependencies and putting in a trivial adapter will take you few seconds at the beginning on the project. And fair enough, maybe your startup goes bancrupt in 5 months and you won't ever have to deal with switching libraries.
+
+But if not, and the project grows with implicit dependencies, good luck switching anything. The 2 minutes you saved on the beginning will cost you hours, if not days plus a lot of pulled out hair all over.
+
+And this happens. During my early years Hpricot was the library one would use to parse HTML.So say I'd write a project using the library. These days the new kids has never even heard of Hpricot and after _why went missing, there's no chance of new version or even anyone knowing much about it anymore.
+
+The solution? Switching to Nokogiri of course.
+
+Writing adapters will force you to be simple. That's good.
+
+And yes, there are libraries that you won't be able to mock out this way. If they'd be gone, you'd have to make some changes. For instance [scheduled-format](https://github.com/botanicus/scheduled-format) relies on parslet. Would parslet be gone, I'd have to change or replace the `Parser` and `Transformer` class and the `.parse` method.
+
+It's not about doing the theoretically right thing, it's about doing what's best for productivity and maintanability. And yes, there is a line. But at least you'll make a conscious decision, what's a pluggable dependency and what's the one or few libraries that the project just can't do without.
+
+Replacing JSON everywhere except of file n say because of a bug (or RAILS_ENV n? better debuggin etc?)
+
+And let's say you use some libraries that all use JSON. Wouldn't it be nice if you could switch them to use Oj instead?
+
+```ruby
+import('my_lib')
+
+my_lib.registry.json_adapter = Oj
+```
+
+```ruby
+# task.rb
+export Task: (Task = Class.new)
+
+# task_list.rb
+Task = import('registry').Task
+
+export TaskList: (TaskList = Class.new {
+  attribute :task_class, '#name' { Task }
+})
+
+# registry.rb
+export(:Task) do
+  import('mylib/task')
+end
+```
+
+# TODO
+
+- Read up: dependency inversion vs. dependency injection, IoC, IoC container.
+- Note that there should be no require 'component', only require 'registry'. Requires only to hard-wired stuff like parslet.
+- Rename `attribute` to `require_component` or `inject`?
+- https://github.com/alexeypetrushin/micon/blob/master/docs/ultima2.rb and https://github.com/alexeypetrushin/rubylang/blob/master/draft/you-underestimate-the-power-of-ioc.md
+- Add interface check to include/extend (resp. define include_component module, interface: ['#to_s']. Either way always include location_service.something.
+- https://phpfashion.com/co-je-dependency-injection
+- How about autodiscovery for the current library? That is not with the outside world.
+- http://dry-rb.org/gems/dry-container/ and http://dry-rb.org/gems/dry-auto_inject/ resp. https://github.com/dry-rb
+- https://gist.github.com/blairanderson/8072d951a480a590f0bd
+- https://www.martinfowler.com/articles/injection.html
+- https://stackoverflow.com/questions/871405/why-do-i-need-an-ioc-container-as-opposed-to-straightforward-di-code
+- Explanation http://ruby-for-beginners.rubymonstas.org/blocks/ioc.html
 
 [Gem version]: https://rubygems.org/gems/interfacer
 [Build status]: https://travis-ci.org/botanicus/interfacer

@@ -6,12 +6,14 @@ class InterfaceSpec
 
   def missing_methods(tested_class)
     @required_interface_methods.reject do |method_name|
-      if method_name[0] == '.'
+      if method_name[0] == '.' # Prefered for classes.
         tested_class.respond_to?(method_name[1..-1])
+      elsif method_name.is_a?(Symbol) # Prefered for objects.
+        tested_class.respond_to?(method_name)
       elsif method_name[0] == '#'
         tested_class.instance_methods.include?(method_name[1..-1].to_sym)
       else
-        raise ArgumentError.new("Incorrect method name. Method name must start with either . or #, such as .new or #to_s.")
+        raise ArgumentError.new("Incorrect method name. Method name must start with either . or #, such as .new or #to_s OR to be a symbol.")
       end
     end
   end
@@ -40,7 +42,7 @@ module Interfacer
     define_method(attr_name) do
       value = instance_variable_get(:"@#{attr_name}")
       return value if value
-      instance_variable_set(:"@#{attr_name}", block.call)
+      instance_variable_set(:"@#{attr_name}", block.call) if block
     end
 
     define_method(:"#{attr_name}=") do |value|
