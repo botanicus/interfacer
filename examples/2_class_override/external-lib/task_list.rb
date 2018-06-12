@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Task, Interfacer = import('external-lib/registry').grab(:Task, :Interfacer)
 
 class TaskList

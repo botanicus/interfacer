@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # @api private
 class InterfaceSpec
   def initialize(required_interface_methods)

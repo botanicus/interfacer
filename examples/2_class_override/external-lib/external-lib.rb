@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 registry = import('external-lib/registry')
 
 export registry: registry,

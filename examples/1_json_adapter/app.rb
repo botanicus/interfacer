@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby -rbundler/setup
+# frozen_string_literal: true
 
 require 'import'
 

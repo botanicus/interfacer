@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # export(:Task) do
 #   import('external-lib').Task
 # end

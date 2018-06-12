@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This is not the best naming, ideally we should go with general names over concrete.
 # I. e. data_source is a better name than database, but database is still a better name
 # tha postgres (in context of components).
