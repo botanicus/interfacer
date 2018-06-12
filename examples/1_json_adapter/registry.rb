@@ -14,7 +14,7 @@ end
 export(:post_repository) do
   # This is a mock, it's useful to start here, but ultimately the registry should only
   # load and instantiate libraries.
-  PostRepository = Class.new {
+  PostRepository = Class.new do
     def retrieve
       <<-EOF
         [
@@ -22,7 +22,7 @@ export(:post_repository) do
         ]
       EOF
     end
-  }
+  end
 
   PostRepository.new
 end

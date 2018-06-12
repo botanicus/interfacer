@@ -8,7 +8,7 @@ json_adapter, post_repository, interfacer = import('registry').
   grab(:json_adapter, :post_repository, :interfacer)
 
 # Aaaand since we're using local variables, we need to use a closure for a class definition.
-MyClass = Class.new {
+MyClass = Class.new do
   extend interfacer
 
   attribute(:json_adapter, :parse, :generate) { json_adapter }
@@ -21,7 +21,7 @@ MyClass = Class.new {
   def serialise(objects)
     json_adapter.generate(objects)
   end
-}
+end
 
 # Main.
 puts "~ Using #{json_adapter.name}."

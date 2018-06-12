@@ -1,4 +1,5 @@
 #!/usr/bin/env gem build
+# frozen_string_literal: true
 
 Gem::Specification.new do |s|
   s.name        = 'interfacer'
@@ -11,7 +12,7 @@ Gem::Specification.new do |s|
   s.license     = 'MIT'
   s.metadata['yard.run'] = 'yri' # use 'yard' to build full HTML docs.
 
-  s.files       = Dir.glob('lib/**/*.rb') + ['README.md', '.yardopts']
+  s.files = Dir.glob('lib/**/*.rb') + ['README.md', '.yardopts']
 
   s.add_runtime_dependency('commonjs_modules', ['~> 0.0'])
 end

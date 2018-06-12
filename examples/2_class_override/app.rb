@@ -22,7 +22,7 @@ class MyTask < external_lib.registry.Task
   end
 end
 
-puts 
+puts
 p [:t, external_lib.registry.Task]
 external_lib.registry.Task = MyTask
 p [:t, external_lib.registry.Task]

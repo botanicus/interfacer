@@ -15,7 +15,7 @@ class InterfaceSpec
       elsif method_name[0] == '#'
         tested_class.instance_methods.include?(method_name[1..-1].to_sym)
       else
-        raise ArgumentError.new("Incorrect method name. Method name must start with either . or #, such as .new or #to_s OR to be a symbol.")
+        raise ArgumentError, "Incorrect method name. Method name must start with either . or #, such as .new or #to_s OR to be a symbol."
       end
     end
   end
